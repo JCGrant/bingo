@@ -1,21 +1,78 @@
 import * as React from 'react';
-import './App.css';
+import BingoGrid, {IBingoItemData} from './BingoGrid';
 
-import logo from './logo.svg';
+const texts = [
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+  'Example Text',
+];
 
-class App extends React.Component {
+const bingoLocalStorageKey = 'bingo-data';
+
+const initialData = texts
+  .map((text) => ({
+    tapped: false,
+    text,
+  }))
+  .sort(() => 0.5 - Math.random())
+  ;
+
+interface IAppState {
+  data: IBingoItemData[];
+}
+
+class App extends React.Component<{}, IAppState> {
+  public constructor() {
+    super({});
+    let data;
+    const cachedData = localStorage.getItem(bingoLocalStorageKey);
+    if (cachedData) {
+      data = JSON.parse(cachedData);
+    } else {
+      data = initialData;
+    }
+    this.state = {data};
+    localStorage.setItem(bingoLocalStorageKey, JSON.stringify(data));
+  }
   public render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
-      </div>
+      <BingoGrid width={5} height={5} data={this.state.data} onClickItem={this.onClickBingoItem}/>
     );
+  }
+
+  private onClickBingoItem = (index: number) => () => {
+    const data = this.state.data
+      .map((d, i) => index === i ? {
+        ...d,
+        tapped: !d.tapped,
+      }: d)
+      ;
+
+    this.setState({data});
+    localStorage.setItem(bingoLocalStorageKey, JSON.stringify(data));
   }
 }
 
